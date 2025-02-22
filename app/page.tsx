@@ -1,58 +1,73 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
-import Image from 'next/image';
-import { useState } from 'react';
-
-import { AudioPlayer } from '@/components/audio-player';
-import { InputSoundEffect } from '@/components/input-sound-effect';
-import { InputPdfFile } from '@/components/input-pdf-file';
-
-import { Card, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Switch } from '@/components/ui/switch';
-import { cn } from '@/lib/utils';
-import type { GeneratedSoundEffect } from '@/types';
+import { useState, useCallback } from 'react';
+import { FileUpload } from '@/components/file-upload';
+import { VideoControls } from '@/components/video-controls';
 
 export default function Page() {
-  const [soundEffects, setSoundEffects] = useState<GeneratedSoundEffect[]>([]);
-  const [selectedEffect, setSelectedEffect] = useState<GeneratedSoundEffect | null>(null);
-  const [autoplay, setAutoplay] = useState(true);
+  const [file, setFile] = useState<File | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(1);
+  const [handRaised, setHandRaised] = useState(false);
+  
+  // Placeholder for total slides - this would come from backend processing
+  const totalSlides = 10;
 
-  const handlePendingSoundEffect = (prompt: string) => {
-    const pendingEffect: GeneratedSoundEffect = {
-      id: crypto.randomUUID(),
-      prompt,
-      audioBase64: '',
-      createdAt: new Date(),
-      status: 'loading',
-    };
-    setSoundEffects((prev) => [pendingEffect, ...prev]);
-    setSelectedEffect(pendingEffect);
-    return pendingEffect.id;
-  };
+  const handleFileSelect = useCallback((selectedFile: File) => {
+    setFile(selectedFile);
+    // Here you would typically upload the file to your backend
+    console.log('Selected PDF file:', selectedFile.name);
+  }, []);
 
-  const updatePendingEffect = (id: string, effect: GeneratedSoundEffect) => {
-    setSoundEffects((prev) =>
-      prev.map((item) => (item.id === id ? { ...effect, status: 'complete' as const } : item))
-    );
-    setSelectedEffect((current) =>
-      current?.id === id ? { ...effect, status: 'complete' as const } : current
-    );
-  };
+  const handlePlayPause = useCallback(() => {
+    setIsPlaying(prev => !prev);
+  }, []);
+
+  const handleRewind = useCallback(() => {
+    setCurrentSlide(1);
+    setIsPlaying(false);
+  }, []);
+
+  const handleRaiseHand = useCallback(() => {
+    setHandRaised(prev => !prev);
+    // Here you would typically notify the backend about the hand raise
+  }, []);
 
   return (
-    <div>
-      <div className="container mx-auto">
-        <h1 className="text-2xl font-bold">Hello!</h1>
-        <div className="flex flex-1 flex-col justify-center">
-          <div className="mx-auto max-w-4xl">
-            <InputPdfFile onFileSelected={(file) => console.log('Selected PDF file:', file)} />
+    <div className="min-h-screen bg-gray-900">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold text-center mb-8 text-white">Interactive Presentation Viewer</h1>
+        
+        {!file ? (
+          <div className="max-w-lg mx-auto">
+            <FileUpload onFileSelect={handleFileSelect} />
           </div>
-        </div>
+        ) : (
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-gray-800 rounded-lg shadow-xl p-4 mb-4 aspect-video border border-gray-700">
+              {/* This would be replaced with actual presentation viewer */}
+              <div className="h-full flex items-center justify-center bg-gray-800">
+                <p className="text-gray-300">
+                  Presentation Viewer - Slide {currentSlide}
+                  {handRaised && (
+                    <span className="ml-2 text-blue-400">(Hand Raised)</span>
+                  )}
+                </p>
+              </div>
+            </div>
+            
+            <VideoControls
+              isPlaying={isPlaying}
+              onPlayPause={handlePlayPause}
+              onRewind={handleRewind}
+              onRaiseHand={handleRaiseHand}
+              currentSlide={currentSlide}
+              totalSlides={totalSlides}
+              handRaised={handRaised}
+            />
+          </div>
+        )}
       </div>
-
     </div>
   );
 }
