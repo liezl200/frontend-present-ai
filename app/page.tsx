@@ -20,6 +20,16 @@ export default function PDFPresenter() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
+  const resetPresentation = useCallback(() => {
+    setPdfFile(null);
+    setCurrentPage(1);
+    setNumPages(0);
+    setIsPlaying(false);
+    setSlideProgress(0);
+    setHandRaised(false);
+    setIsRecording(false);
+  }, []);
+
   const handleFileSelect = useCallback((file: File) => {
     setPdfFile(file);
     setCurrentPage(1);
@@ -149,23 +159,33 @@ export default function PDFPresenter() {
               renderAnnotationLayer={false}
             />
           </Document>
-  
-          <PresentationControls
-            currentSlide={currentPage}
-            totalSlides={numPages}
-            isPlaying={isPlaying}
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            onPlayPause={togglePlayPause}
-            onRaiseHand={toggleHandRaise}
-            handRaised={handRaised}
-            slideProgress={slideProgress}
-            isRecording={isRecording}
-            onToggleRecording={toggleRecording}
-          />
+
+          <div className="flex flex-col gap-2 relative">
+            <div className="absolute right-0 top-0">
+              <button
+                onClick={resetPresentation}
+                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md"
+              >
+                Upload New File
+              </button>
+            </div>
+            
+            <PresentationControls
+              currentSlide={currentPage}
+              totalSlides={numPages}
+              isPlaying={isPlaying}
+              onPrevious={handlePrevious}
+              onNext={handleNext}
+              onPlayPause={togglePlayPause}
+              onRaiseHand={toggleHandRaise}
+              handRaised={handRaised}
+              slideProgress={slideProgress}
+              isRecording={isRecording}
+              onToggleRecording={toggleRecording}
+            />
+          </div>
         </div>
       )}
     </div>
   );
-  
 }
