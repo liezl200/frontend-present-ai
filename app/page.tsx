@@ -147,6 +147,14 @@ export default function PDFPresenter() {
         </div>
       ) : (
         <div className="p-4 h-[75vh] max-w-full">
+          <div className="absolute top-0 right-0 pr-[5vw] pr-[4.5vw] pt-[1.8vh] z-50">
+            <button
+              onClick={resetPresentation}
+              className="px-4 py-2 text-sm font-medium text-black bg-primary hover:bg-primary/90 rounded-md"
+            >
+              Upload New Presentation
+            </button>
+          </div>
           <Document
             file={pdfFile}
             onLoadSuccess={onDocumentLoadSuccess}
@@ -161,15 +169,6 @@ export default function PDFPresenter() {
           </Document>
 
           <div className="flex flex-col gap-2 relative">
-            <div className="absolute right-0 top-0">
-              <button
-                onClick={resetPresentation}
-                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-md"
-              >
-                Upload New File
-              </button>
-            </div>
-            
             <PresentationControls
               currentSlide={currentPage}
               totalSlides={numPages}
