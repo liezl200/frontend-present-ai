@@ -7,8 +7,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { FileUpload } from '@/components/file-upload';
 import { PresentationControls } from '@/components/presentation-controls';
 
-// Set up PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function PDFPresenter() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
