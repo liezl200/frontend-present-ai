@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 type InputPdfFileProps = {
@@ -9,6 +9,7 @@ type InputPdfFileProps = {
 
 export function InputPdfFile({ onFileSelected }: InputPdfFileProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -19,6 +20,8 @@ export function InputPdfFile({ onFileSelected }: InputPdfFileProps) {
         return;
       }
       onFileSelected(file);
+      const fileUrl = URL.createObjectURL(file);
+      setPdfUrl(fileUrl);
     }
   };
 
@@ -38,6 +41,13 @@ export function InputPdfFile({ onFileSelected }: InputPdfFileProps) {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
+
+      {/* Display the selected PDF */}
+      {pdfUrl && (
+        <div className="mt-4">
+          <iframe src={pdfUrl} width="100%" height="500px" />
+        </div>
+      )}
     </div>
   );
 }
