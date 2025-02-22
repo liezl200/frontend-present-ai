@@ -1,13 +1,11 @@
 import type { Metadata } from 'next';
-
 import { getApiKey } from '@/app/actions';
-import { AppSidebar } from '@/components/app-sidebar';
-// import { Byline } from '@/components/by-line';
+import { PresentableLogo } from '@/components/logo';
 import { KeyProvider } from '@/components/key-provider';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Card } from '@/components/ui/card';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import Link from 'next/link';
 
 import './globals.css';
 
@@ -43,21 +41,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           disableTransitionOnChange
         >
           <KeyProvider apiKey={apiKey}>
-            <SidebarProvider>
-              <AppSidebar />
-              <SidebarInset className="background-gradient">
-                <header className="relative flex h-[60px] shrink-0 items-center justify-center">
-                  <SidebarTrigger className="absolute left-3" />
-                </header>
-                <div className="px-4">
-                  <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">
-                    <Card className="border-gradient rounded-lg p-px shadow-lg">
-                      <div className="bg-card rounded-lg">{children}</div>
-                    </Card>
-                  </div>
+            <div className="background-gradient">
+              <header className="relative flex h-[60px] shrink-0 items-center px-6 border-b border-border">
+                <Link href="/" className="flex items-center">
+                  <PresentableLogo className="dark:text-white" height={16} />
+                </Link>
+              </header>
+              <div className="px-4">
+                <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">
+                  <Card className="border-gradient rounded-lg p-px shadow-lg">
+                    <div className="bg-card rounded-lg">{children}</div>
+                  </Card>
                 </div>
-              </SidebarInset>
-            </SidebarProvider>
+              </div>
+            </div>
           </KeyProvider>
           <Toaster />
         </ThemeProvider>
