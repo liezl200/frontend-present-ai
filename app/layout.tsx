@@ -49,8 +49,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 <header className="relative flex h-[60px] shrink-0 items-center justify-center">
                   <SidebarTrigger className="absolute left-3" />
                 </header>
-                <div className="p-4">
-                  <div className="mx-auto max-w-4xl space-y-3 px-2 pt-20 lg:px-8 lg:py-8">
+                <div className="px-4">
+                  <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">
                     <Card className="border-gradient rounded-lg p-px shadow-lg">
                       <div className="bg-card rounded-lg">{children}</div>
                     </Card>

@@ -130,29 +130,26 @@ export default function PDFPresenter() {
   }, [currentPage, numPages]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-[75vh] bg-background">
       {!pdfFile ? (
-        <div className="max-w-2xl mx-auto pt-20 px-8">
+        <div className="max-w-2xl mx-auto pt-10 px-8">
           <FileUpload onFileSelect={handleFileSelect} />
         </div>
       ) : (
-        <div className="max-w-4xl mx-auto p-8">
-          <div className="bg-card rounded-lg shadow-lg p-8 mb-20 relative">
-            <Document
-              file={pdfFile}
-              onLoadSuccess={onDocumentLoadSuccess}
-              className="flex justify-center"
-            >
-              <Page
-                key={currentPage}
-                pageNumber={currentPage}
-                className="max-w-full h-auto"
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-              />
-            </Document>
-          </div>
-          
+        <div className="p-4 h-[75vh] max-w-full">
+          <Document
+            file={pdfFile}
+            onLoadSuccess={onDocumentLoadSuccess}
+            className="flex justify-center"
+          >
+            <Page
+              key={currentPage}
+              pageNumber={currentPage}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+            />
+          </Document>
+  
           <PresentationControls
             currentSlide={currentPage}
             totalSlides={numPages}
@@ -170,4 +167,5 @@ export default function PDFPresenter() {
       )}
     </div>
   );
+  
 }
