@@ -134,7 +134,7 @@ export function InputSoundEffect({
                     <DropdownMenuSeparator />
                     <DropdownMenuRadioGroup
                       value={String(form.watch('duration_seconds'))}
-                      onValueChange={(value) =>
+                      onValueChange={(value: string) =>
                         form.setValue(
                           'duration_seconds',
                           value === 'auto' ? 'auto' : parseFloat(value)
