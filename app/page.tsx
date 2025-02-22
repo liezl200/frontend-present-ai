@@ -144,7 +144,7 @@ export default function PDFPresenter() {
       {!pdfFile ? (
         <div className="max-w-2xl mx-auto pt-10 px-8">
           <div className="flex justify-center items-center shadow-lg pt-[8vh] pb-[5vh]">
-            <img src="/logo2.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
+            <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
           </div>
           <FileUpload onFileSelect={handleFileSelect} />
         </div>

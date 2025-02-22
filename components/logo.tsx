@@ -33,7 +33,7 @@ export const PresentableLogo = ({
       fontWeight="bold"
       fill="currentColor"
     >
-      present.ai
+      presentable
     </text>
   </svg>
 );
