@@ -2,12 +2,12 @@ import React, { useCallback, useState } from 'react';
 // import { Upload, Loader2 } from 'lucide-react';
 import { Upload } from 'lucide-react';
 import { storage } from '@/lib/firebase'; 
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytes, listAll, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void;
-  onUploadComplete?: (jsonPath: string) => void;
+  onFileSelect: (file: File, uuid: string) => void;
+  onUploadComplete?: (audioUrls?: Record<number, { audioUrl: string, duration: number, lastModified: Date }>) => void;
 }
 
 export const FileUpload: React.FC<FileUploadProps> =
@@ -17,17 +17,18 @@ export const FileUpload: React.FC<FileUploadProps> =
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
-      onFileSelect(file);
-      uploadToFirebase(file);
+      const uuid = uuidv4();
+      onFileSelect(file, uuid);
+      uploadToFirebase(file, uuid);
     }
   };
 
-  const uploadToFirebase = async (file: File) => {
+  const uploadToFirebase = async (file: File, uuid: string) => {
     try {
       setIsUploading(true);
 
       // Generate a unique ID for the presentation
-      const presentationId = uuidv4();
+      const presentationId = uuid;
       
       // Create a reference to the file in Firebase Storage
       const fileRef = ref(storage, `uploads/${presentationId}.pdf`);
@@ -35,19 +36,41 @@ export const FileUpload: React.FC<FileUploadProps> =
       // Upload the file
       await uploadBytes(fileRef, file);
             
-      // The JSON will be created by the Cloud Function and stored at this path
-      const expectedJsonPath = `presentations/${presentationId}/content.json`;
+
       
-      // Notify parent component
-      onUploadComplete?.(expectedJsonPath);
+      // Check for existing audio files in the presentation folder
+      const audioRef = ref(storage, `uploads/${presentationId}/audio`);
+      try {
+        const audioFiles = await listAll(audioRef);
+        const audioUrls: Record<number, { audioUrl: string, duration: number, lastModified: Date }> = {};
+        
+        // Get download URLs for all audio files
+        await Promise.all(audioFiles.items.map(async (audioItem) => {
+          // Extract slide number from filename (assuming format: segment-1.wav, segment-2.wav, etc.)
+          const slideNum = parseInt(audioItem.name.match(/segment-(\d+)\.wav/)?.[1] || '0');
+          if (slideNum > 0) {
+            const url = await getDownloadURL(audioItem);
+            audioUrls[slideNum] = {
+              audioUrl: url,
+              duration: 0, // You might want to store this metadata in Firebase as well
+              lastModified: new Date()
+            };
+          }
+        }));
+
+        // Update presentation state with audio URLs
+        onUploadComplete?.(audioUrls);
+      } catch (error) {
+        console.error('Error fetching audio files:', error);
+        // Continue without audio files
+        onUploadComplete?.({});
+      }
       
       setIsUploading(false);
-      // setUploadProgress(100);
       
     } catch (error) {
       console.error('Error uploading file:', error);
       setIsUploading(false);
-      // Handle error appropriately
     }
   };
 
@@ -58,8 +81,9 @@ export const FileUpload: React.FC<FileUploadProps> =
       
       const file = event.dataTransfer.files?.[0];
       if (file && file.type === 'application/pdf') {
-        onFileSelect(file);
-        uploadToFirebase(file);
+        const uuid = uuidv4();
+        onFileSelect(file, uuid);
+        uploadToFirebase(file, uuid);
       }
     },
     [onFileSelect]

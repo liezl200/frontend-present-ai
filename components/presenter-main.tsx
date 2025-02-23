@@ -1,5 +1,5 @@
 import { useAtom } from 'jotai';
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useConversation } from '@11labs/react';
 
 import { Document, Page } from 'react-pdf';
@@ -9,6 +9,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { FileUpload } from './file-upload';
 import { PresentationControls } from './presentation-controls';
 import LoadingIndicator from './loading-indicator';
+import { SlideAudioPlayer } from './slide-audio-player';
 import { filesAtom, presentationAtom, selectedFileIdAtom } from '../store/atoms';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
@@ -30,9 +31,9 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     onError: (error: Error) => console.error('ElevenLabs error:', error),
   });
 
-  const handleFileUpload = (file: File) => {
+  const handleFileUpload = (file: File, uuid: string) => {
     const newFile = {
-      id: crypto.randomUUID(),
+      id: uuid,
       name: file.name,
       type: 'pdf' as const,
       file: file,
@@ -41,7 +42,14 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     setFiles(prev => [...prev, newFile]);
     setSelectedFileId(newFile.id);
   };
-  
+
+  const handleUploadComplete = (audioUrls: Record<number, { audioUrl: string, duration: number, lastModified: Date }> = {}) => {
+    setPresentation(prev => ({
+      ...prev,
+      slideAudios: audioUrls
+    }));
+  };
+
   const resetPresentation = () => {
     setPresentation(prev => ({
       ...prev,
@@ -79,7 +87,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     }));
   };
 
-  
+
   const toggleHandRaise = async () => {
     console.log("i am toggled");
     setPresentation(prev => {
@@ -138,7 +146,10 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
       {presentation.isLoading && <LoadingIndicator />}
       {!selectedFile ? (
         <div className="max-w-2xl mx-auto pt-10">
-          <FileUpload onFileSelect={handleFileUpload} />
+          <FileUpload 
+            onFileSelect={handleFileUpload} 
+            onUploadComplete={handleUploadComplete}
+          />
         </div>
       ) : (
         <div className="h-[75vh]">
@@ -176,15 +187,20 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
 
             <div className="flex flex-col gap-2 relative">
                 <PresentationControls
-                currentSlide={presentation.currentPage}
-                totalSlides={presentation.numPages}
-                isPlaying={presentation.isPlaying}
-                onPrevious={handlePrevious}
-                onNext={handleNext}
-                onPlayPause={togglePlayPause}
-                onRaiseHand={toggleHandRaise}
-                handRaised={presentation.handRaised}
-                slideProgress={presentation.slideProgress}
+                  currentSlide={presentation.currentPage}
+                  totalSlides={presentation.numPages}
+                  isPlaying={presentation.isPlaying}
+                  onPrevious={handlePrevious}
+                  onNext={handleNext}
+                  onPlayPause={togglePlayPause}
+                  onRaiseHand={toggleHandRaise}
+                  handRaised={presentation.handRaised}
+                  slideProgress={presentation.slideProgress}
+                />
+                <SlideAudioPlayer
+                  audioUrl={presentation.slideAudios[presentation.currentPage]?.audioUrl}
+                  isPlaying={presentation.isPlaying}
+                  onEnded={handleNext}
                 />
             </div>
           </div>

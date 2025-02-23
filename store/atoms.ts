@@ -8,6 +8,11 @@ export interface FileItem {
   file: File;
   lastModified: Date;
 }
+export interface SlideAudio {
+  audioUrl: string;
+  duration: number;
+  lastModified: Date;
+}
 export interface PresentationState {
   currentPage: number;
   numPages: number;
@@ -16,6 +21,7 @@ export interface PresentationState {
   slideProgress: number;
   isLoading: boolean;
   error: string | null;
+  slideAudios: Record<number, SlideAudio>;  // Map slide numbers to their audio data
 }
 export const filesAtom = atom<FileItem[]>([]);
 export const selectedFileIdAtom = atom<string | null>(null);
@@ -27,4 +33,5 @@ export const presentationAtom = atom<PresentationState>({
   slideProgress: 0,
   isLoading: false,
   error: null,
+  slideAudios: {},
 });
