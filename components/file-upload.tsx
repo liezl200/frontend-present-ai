@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Upload, Loader2 } from 'lucide-react';
 import { storage } from '@/lib/firebase'; 
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 interface FileUploadProps {
@@ -26,10 +26,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, onUploadCo
       
       // Upload the file
       await uploadBytes(fileRef, file);
-      
-      // Get the download URL (optional, if you need it)
-      // const downloadURL = await getDownloadURL(fileRef);
-      
+            
       // The JSON will be created by the Cloud Function and stored at this path
       const expectedJsonPath = `presentations/${presentationId}/content.json`;
       
