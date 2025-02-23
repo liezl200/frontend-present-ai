@@ -3,10 +3,9 @@ import { getApiKey } from '@/app/actions';
 import { AppSidebar } from '@/components/app-sidebar';
 import { KeyProvider } from '@/components/key-provider';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Card } from '@/components/ui/card';
 import { Toaster } from '@/components/ui/sonner';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-// import Link from 'next/link';
+import { Card } from '@/components/ui/card';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 
 import './globals.css';
 
@@ -45,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset className="background-gradient">
-                <header className="relative flex h-[60px] shrink-0 items-center px-6 border-b border-border">
+                <header className="relative flex h-[60px] shrink-0 items-center justify-center">
                   <SidebarTrigger className="absolute left-3" />
                 </header>
                 <div className="px-4">
