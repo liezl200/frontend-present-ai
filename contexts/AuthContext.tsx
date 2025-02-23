@@ -33,11 +33,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         // Get the ID token
         const idToken = await user.getIdToken();
-        // Set the session cookie
-        document.cookie = `__session=${idToken}; path=/; secure; samesite=lax`;
+        // Set the session cookie with proper security flags
+        const maxAge = 3600; // 1 hour in seconds
+        document.cookie = `__session=${idToken}; path=/; max-age=${maxAge}; secure; samesite=lax`;
       } else {
         // Remove the session cookie on sign out
-        document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=lax';
       }
       setUser(user);
       setLoading(false);
@@ -58,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await firebaseSignOut(auth);
       // Remove the session cookie on sign out
-      document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      document.cookie = '__session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; httpOnly; samesite=lax';
     } catch (error) {
       console.error('Error signing out:', error);
     }
