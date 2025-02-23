@@ -7,10 +7,12 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { FileUpload } from '@/components/file-upload';
 import { PresentationControls } from '@/components/presentation-controls';
 import { useConversation } from '@11labs/react';
+import { useAuth } from '@/contexts/AuthContext';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export default function PDFPresenter() {
+  const { loading } = useAuth();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -24,7 +26,7 @@ export default function PDFPresenter() {
   // Initialize ElevenLabs conversation
   const conversation = useConversation({
     onConnect: () => console.log('Connected to ElevenLabs'),
-    onDisconnect: () => console.log('Disconnected from ElevenLabs'),
+    onDisconnect: () => setHandRaised((prev) => !prev),
     onMessage: (message) => console.log('Message received:', message),
     onError: (error) => console.error('ElevenLabs error:', error),
   });
@@ -162,6 +164,18 @@ export default function PDFPresenter() {
       setIsPlaying(false);
     }
   }, [currentPage, numPages]);
+
+  // If still loading auth state, show loading indicator
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[75vh] bg-background">

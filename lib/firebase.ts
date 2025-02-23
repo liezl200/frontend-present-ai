@@ -1,6 +1,6 @@
 // lib/firebase.ts
 import { initializeApp } from "firebase/app";
-// import { getAnalytics } from "firebase/analytics";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getStorage } from 'firebase/storage';
 
 // Import the functions you need from the SDKs you need
@@ -24,3 +24,5 @@ const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 const storage = getStorage(app, `gs://presentable-b5545.firebasestorage.app`);
 export { storage };
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
