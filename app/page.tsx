@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -17,16 +17,13 @@ export default function PDFPresenter() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [handRaised, setHandRaised] = useState<boolean>(false);
   const [slideProgress, setSlideProgress] = useState<number>(0);
-  const [isRecording, setIsRecording] = useState<boolean>(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
 
   // Initialize ElevenLabs conversation
   const conversation = useConversation({
     onConnect: () => console.log('Connected to ElevenLabs'),
     onDisconnect: () => console.log('Disconnected from ElevenLabs'),
-    onMessage: (message) => console.log('Message received:', message),
-    onError: (error) => console.error('ElevenLabs error:', error),
+    onMessage: (message: unknown) => console.log('Message received:', message),
+    onError: (error: Error) => console.error('ElevenLabs error:', error),
   });
 
   const resetPresentation = useCallback(() => {
@@ -36,7 +33,6 @@ export default function PDFPresenter() {
     setIsPlaying(false);
     setSlideProgress(0);
     setHandRaised(false);
-    setIsRecording(false);
   }, []);
 
   const handleFileSelect = useCallback((file: File) => {
@@ -73,13 +69,6 @@ export default function PDFPresenter() {
     setHandRaised((prev) => !prev);
     setIsPlaying(false);
     setSlideProgress(0);
-    
-    if (isRecording) {
-      setIsRecording(false);
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-      }
-    }
 
     try {
       if (!handRaised) {
@@ -93,53 +82,7 @@ export default function PDFPresenter() {
     } catch (error) {
       console.error('Error managing conversation:', error);
     }
-  }, [isRecording, handRaised, conversation]);
-
-  const toggleRecording = useCallback(async () => {
-    if (!isRecording) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream);
-        mediaRecorderRef.current = mediaRecorder;
-        chunksRef.current = [];
-
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) {
-            chunksRef.current.push(e.data);
-          }
-        };
-
-        mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          
-          // Create a temporary link to download the audio
-          const link = document.createElement('a');
-          link.href = audioUrl;
-          link.download = `recording-slide-${currentPage}.webm`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          // Clean up
-          stream.getTracks().forEach(track => track.stop());
-          URL.revokeObjectURL(audioUrl);
-          chunksRef.current = [];
-        };
-
-        mediaRecorder.start();
-        setIsRecording(true);
-      } catch (err) {
-        console.error('Error accessing microphone:', err);
-        alert('Could not access microphone. Please check your browser permissions.');
-      }
-    } else {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-        mediaRecorderRef.current.stop();
-      }
-      setIsRecording(false);
-    }
-  }, [isRecording, currentPage]);
+  }, [handRaised, conversation]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -222,8 +165,6 @@ export default function PDFPresenter() {
               onRaiseHand={toggleHandRaise}
               handRaised={handRaised}
               slideProgress={slideProgress}
-              isRecording={isRecording}
-              onToggleRecording={toggleRecording}
             />
           </div>
         </div>
