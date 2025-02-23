@@ -28,7 +28,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, onUploadCo
       await uploadBytes(fileRef, file);
       
       // Get the download URL (optional, if you need it)
-      const downloadURL = await getDownloadURL(fileRef);
+      // const downloadURL = await getDownloadURL(fileRef);
       
       // The JSON will be created by the Cloud Function and stored at this path
       const expectedJsonPath = `presentations/${presentationId}/content.json`;
