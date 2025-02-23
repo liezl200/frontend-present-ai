@@ -20,6 +20,8 @@ export interface PresentationState {
   handRaised: boolean;
   slideProgress: number;
   isLoading: boolean;
+  isProcessing: boolean;
+  processingUuid: string | null;
   error: string | null;
   slideAudios: Record<number, SlideAudio>;  // Map slide numbers to their audio data
 }
@@ -32,6 +34,8 @@ export const presentationAtom = atom<PresentationState>({
   handRaised: false,
   slideProgress: 0,
   isLoading: false,
+  isProcessing: false,
+  processingUuid: null,
   error: null,
   slideAudios: {},
 });

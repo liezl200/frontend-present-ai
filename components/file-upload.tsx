@@ -4,6 +4,7 @@ import { Upload } from 'lucide-react';
 import { storage } from '@/lib/firebase'; 
 import { ref, uploadBytes, listAll, getDownloadURL } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
+import LoadingIndicator from './loading-indicator';
 
 interface FileUploadProps {
   onFileSelect: (file: File, uuid: string) => void;
@@ -35,36 +36,6 @@ export const FileUpload: React.FC<FileUploadProps> =
       
       // Upload the file
       await uploadBytes(fileRef, file);
-            
-
-      
-      // Check for existing audio files in the presentation folder
-      const audioRef = ref(storage, `uploads/${presentationId}/audio`);
-      try {
-        const audioFiles = await listAll(audioRef);
-        const audioUrls: Record<number, { audioUrl: string, duration: number, lastModified: Date }> = {};
-        
-        // Get download URLs for all audio files
-        await Promise.all(audioFiles.items.map(async (audioItem) => {
-          // Extract slide number from filename (assuming format: segment-1.wav, segment-2.wav, etc.)
-          const slideNum = parseInt(audioItem.name.match(/segment-(\d+)\.wav/)?.[1] || '0');
-          if (slideNum > 0) {
-            const url = await getDownloadURL(audioItem);
-            audioUrls[slideNum] = {
-              audioUrl: url,
-              duration: 0, // You might want to store this metadata in Firebase as well
-              lastModified: new Date()
-            };
-          }
-        }));
-
-        // Update presentation state with audio URLs
-        onUploadComplete?.(audioUrls);
-      } catch (error) {
-        console.error('Error fetching audio files:', error);
-        // Continue without audio files
-        onUploadComplete?.({});
-      }
       
       setIsUploading(false);
       
@@ -107,28 +78,35 @@ export const FileUpload: React.FC<FileUploadProps> =
         className="w-96 h-auto"
       />
       <div className="w-2/3 max-w-2xl">
-        <label
-          htmlFor="file-upload"
-          className="flex flex-col items-center justify-center w-full h-48 border-2 border-white border-dotted rounded-lg cursor-pointer bg-transparent hover:bg-white/5"
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragEnter={handleDragEnter}
-        >
-          <div className="flex flex-col items-center justify-center pt-4 pb-4">
-            <Upload className="w-10 h-10 mb-3 text-white" />
-            <p className="mb-2 text-sm text-white">
-              <span className="font-semibold">Click to upload</span> or drag and drop
-            </p>
-            <p className="text-xs text-white/80">PDF files only</p>
+        {isUploading ? (
+          <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-white border-dotted rounded-lg bg-transparent">
+            <LoadingIndicator />
+            <p className="mt-4 text-white text-sm">Uploading your presentation...</p>
           </div>
-          <input
-            id="file-upload"
-            type="file"
-            className="hidden"
-            accept=".pdf"
-            onChange={handleFileChange}
-          />
-        </label>
+        ) : (
+          <label
+            htmlFor="file-upload"
+            className="flex flex-col items-center justify-center w-full h-48 border-2 border-white border-dotted rounded-lg cursor-pointer bg-transparent hover:bg-white/5"
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+          >
+            <div className="flex flex-col items-center justify-center pt-4 pb-4">
+              <Upload className="w-10 h-10 mb-3 text-white" />
+              <p className="mb-2 text-sm text-white">
+                <span className="font-semibold">Click to upload</span> or drag and drop
+              </p>
+              <p className="text-xs text-white/80">PDF files only</p>
+            </div>
+            <input
+              id="file-upload"
+              type="file"
+              className="hidden"
+              accept=".pdf"
+              onChange={handleFileChange}
+            />
+          </label>
+        )}
       </div>
     </div>
   );

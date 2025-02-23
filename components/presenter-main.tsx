@@ -11,6 +11,8 @@ import { PresentationControls } from './presentation-controls';
 import LoadingIndicator from './loading-indicator';
 import { SlideAudioPlayer } from './slide-audio-player';
 import { filesAtom, presentationAtom, selectedFileIdAtom } from '../store/atoms';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '@/lib/firebase';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -41,6 +43,11 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     };
     setFiles(prev => [...prev, newFile]);
     setSelectedFileId(newFile.id);
+    setPresentation(prev => ({
+      ...prev,
+      isProcessing: true,
+      processingUuid: uuid
+    }));
   };
 
   const handleUploadComplete = (audioUrls: Record<number, { audioUrl: string, duration: number, lastModified: Date }> = {}) => {
@@ -141,6 +148,43 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     resetPresentation();
   }, [selectedFileId]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (presentation.isProcessing && presentation.processingUuid) {
+      interval = setInterval(async () => {
+        try {
+          // Check for the combined audio file
+          const audioRef = ref(storage, `presentations/${presentation.processingUuid}/audio/combined_audio.wav`);
+          const exists = await getDownloadURL(audioRef).then(() => true).catch(() => false);
+          
+          if (exists) {
+            // Audio file exists, stop processing
+            setPresentation(prev => ({
+              ...prev,
+              isProcessing: false,
+              processingUuid: null
+            }));
+            
+            // Get the URL and update presentation state
+            const audioUrl = await getDownloadURL(audioRef);
+            handleUploadComplete({
+              1: { audioUrl, duration: 0, lastModified: new Date() }
+            });
+          }
+        } catch (error) {
+          console.error('Error checking for audio file:', error);
+        }
+      }, 5000); // Check every 5 seconds
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [presentation.isProcessing, presentation.processingUuid]);
+
   return (
     <div>
       {presentation.isLoading && <LoadingIndicator />}
@@ -150,6 +194,11 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
             onFileSelect={handleFileUpload} 
             onUploadComplete={handleUploadComplete}
           />
+        </div>
+      ) : presentation.isProcessing ? (
+        <div className="flex flex-col items-center justify-center h-[75vh]">
+          <LoadingIndicator />
+          <p className="mt-4 text-white text-sm">Processing your presentation...</p>
         </div>
       ) : (
         <div className="h-[75vh]">
