@@ -69,6 +69,7 @@ export default function PDFPresenter() {
   }, [isPlaying]);
 
   const toggleHandRaise = useCallback(async () => {
+    console.log("i am toggled")
     setHandRaised((prev) => !prev);
     setIsPlaying(false);
     setSlideProgress(0);
