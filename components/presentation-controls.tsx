@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hand as HandRaised, ChevronLeft, ChevronRight, Play, Pause, Mic, MicOff } from 'lucide-react';
+import { Hand as HandRaised, ChevronLeft, ChevronRight, Play, Pause, Circle } from 'lucide-react';
 
 interface PresentationControlsProps {
   currentSlide: number;
@@ -11,8 +11,6 @@ interface PresentationControlsProps {
   onRaiseHand: () => void;
   handRaised: boolean;
   slideProgress: number;
-  isRecording: boolean;
-  onToggleRecording: () => void;
 }
 
 export const PresentationControls: React.FC<PresentationControlsProps> = ({
@@ -25,8 +23,6 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
   onRaiseHand,
   handRaised,
   slideProgress,
-  isRecording,
-  onToggleRecording,
 }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card shadow-lg">
@@ -61,21 +57,12 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
               <HandRaised className="w-6 h-6" />
             </button>
             {handRaised && (
-              <button
-                onClick={onToggleRecording}
-                className={`p-2 rounded-r-full border-l border-border ${
-                  isRecording
-                    ? 'bg-destructive text-destructive-foreground'
-                    : 'hover:bg-secondary text-foreground'
-                }`}
-                title={isRecording ? "Stop recording" : "Start recording"}
+              <div 
+                className="p-2 rounded-r-full border-l border-border bg-red-600 text-white animate-pulse"
+                title="Recording indicator (no functionality)"
               >
-                {isRecording ? (
-                  <MicOff className="w-6 h-6" />
-                ) : (
-                  <Mic className="w-6 h-6" />
-                )}
-              </button>
+                <Circle className="w-6 h-6" />
+              </div>
             )}
           </div>
         </div>
