@@ -45,7 +45,7 @@ export default function PDFPresenter() {
       setIsPlaying(false);
       setSlideProgress(0);
       setIsLoading(false);
-    }, 2000);
+    }, 5000);
   }, []);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
@@ -114,12 +114,13 @@ export default function PDFPresenter() {
 
   return (
     <div className="h-[75vh] bg-background">
+      {isLoading && <LoadingIndicator />}
       {!pdfFile ? (
         <div className="max-w-2xl mx-auto pt-10 px-8">
           <div className="flex justify-center items-center shadow-lg pt-[8vh] pb-[5vh]">
             <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
           </div>
-          {isLoading ? <LoadingIndicator /> : <FileUpload onFileSelect={handleFileSelect} />}
+          <FileUpload onFileSelect={handleFileSelect} />
           <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
             <button onClick={resetPresentation}
             className = "cursor-pointer">
