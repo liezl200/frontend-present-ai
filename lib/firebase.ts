@@ -1,5 +1,6 @@
 // lib/firebase.ts
 import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 import { getStorage } from 'firebase/storage';
 
 // Import the functions you need from the SDKs you need
@@ -18,11 +19,8 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase with explicit options
-const app = initializeApp(firebaseConfig, {
-  experimentalForceLongPolling: true,
-});
-
-// Initialize Storage with explicit bucket
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+// const analytics = getAnalytics(app);
 const storage = getStorage(app, `gs://presentable-b5545.firebasestorage.app`);
 export { storage };
