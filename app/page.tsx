@@ -113,7 +113,7 @@ export default function PDFPresenter() {
   }, [currentPage, numPages]);
 
   return (
-    <div className="h-[75vh] bg-background">
+    <div className="h-[75vh]">
       {isLoading && <LoadingIndicator />}
       {!pdfFile ? (
         <div className="max-w-2xl mx-auto pt-10 px-8">

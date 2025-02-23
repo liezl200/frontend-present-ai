@@ -48,10 +48,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <SidebarTrigger className="absolute left-3" />
                 </header>
                 <div className="px-4">
-                  <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">
-                    <Card className="border-gradient rounded-lg p-px shadow-lg">
-                      <div className="bg-card rounded-lg">{children}</div>
-                    </Card>
+                  <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">{children}
+                    {/* <Card className="border-gradient rounded-lg p-px shadow-lg"> */}
+                      {/* <div className="bg-card rounded-lg">{children}</div> */}
+                    {/* </Card> */}
                   </div>
                 </div>
               </SidebarInset>
