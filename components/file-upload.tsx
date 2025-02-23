@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, Loader2 } from 'lucide-react';
+// import { Upload, Loader2 } from 'lucide-react';
+import { Upload } from 'lucide-react';
+
 import { storage } from '@/lib/firebase'; 
 import { ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
@@ -11,7 +13,7 @@ interface FileUploadProps {
 
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, onUploadComplete }) => {
   const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  // const [uploadProgress, setUploadProgress] = useState(0);
 
   const uploadToFirebase = async (file: File) => {
     try {
@@ -34,7 +36,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, onUploadCo
       onUploadComplete?.(expectedJsonPath);
       
       setIsUploading(false);
-      setUploadProgress(100);
+      // setUploadProgress(100);
       
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -83,10 +85,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, onUploadCo
       <label htmlFor="file-input" className="cursor-pointer">
         {isUploading ? (
           <>
-            <Loader2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground animate-spin" />
+            {/* <Loader2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground animate-spin" />
             <p className="text-lg font-medium text-foreground">
-              Uploading... {uploadProgress}%
-            </p>
+              Loading your lecture... {uploadProgress}%
+            </p> */}
           </>
         ) : (
           <>

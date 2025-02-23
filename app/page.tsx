@@ -7,6 +7,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { FileUpload } from '@/components/file-upload';
 import { PresentationControls } from '@/components/presentation-controls';
 import { useConversation } from '@11labs/react';
+import LoadingIndicator from '@/components/loading-indicator';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -17,6 +18,7 @@ export default function PDFPresenter() {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [handRaised, setHandRaised] = useState<boolean>(false);
   const [slideProgress, setSlideProgress] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Initialize ElevenLabs conversation
   const conversation = useConversation({
@@ -36,10 +38,14 @@ export default function PDFPresenter() {
   }, []);
 
   const handleFileSelect = useCallback((file: File) => {
-    setPdfFile(file);
-    setCurrentPage(1);
-    setIsPlaying(false);
-    setSlideProgress(0);
+    setIsLoading(true);
+    setTimeout(() => {
+      setPdfFile(file);
+      setCurrentPage(1);
+      setIsPlaying(false);
+      setSlideProgress(0);
+      setIsLoading(false);
+    }, 2000);
   }, []);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
@@ -113,7 +119,7 @@ export default function PDFPresenter() {
           <div className="flex justify-center items-center shadow-lg pt-[8vh] pb-[5vh]">
             <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
           </div>
-          <FileUpload onFileSelect={handleFileSelect} />
+          {isLoading ? <LoadingIndicator /> : <FileUpload onFileSelect={handleFileSelect} />}
           <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
             <button onClick={resetPresentation}
             className = "cursor-pointer">
