@@ -169,6 +169,44 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     };
   }, [presentation.isProcessing, presentation.processingUuid]);
 
+  // Original polling version
+  // useEffect(() => {
+  //   let interval: NodeJS.Timeout;
+    
+  //   if (presentation.isProcessing && presentation.processingUuid) {
+  //     interval = setInterval(async () => {
+  //       try {
+  //         // Check for the combined audio file
+  //         const audioRef = ref(storage, `presentations/${presentation.processingUuid}/audio/combined_audio.wav`);
+  //         const exists = await getDownloadURL(audioRef).then(() => true).catch(() => false);
+          
+  //         if (exists) {
+  //           // Audio file exists, stop processing
+  //           setPresentation(prev => ({
+  //             ...prev,
+  //             isProcessing: false,
+  //             processingUuid: null
+  //           }));
+            
+  //           // Get the URL and update presentation state
+  //           const audioUrl = await getDownloadURL(audioRef);
+  //           handleUploadComplete({
+  //             1: { audioUrl, duration: 0, lastModified: new Date() }
+  //           });
+  //         }
+  //       } catch (error) {
+  //         console.error('Error checking for audio file:', error);
+  //       }
+  //     }, 5000); // Check every 5 seconds
+  //   }
+
+  //   return () => {
+  //     if (interval) {
+  //       clearInterval(interval);
+  //     }
+  //   };
+  // }, [presentation.isProcessing, presentation.processingUuid]);
+
   return (
     <div>
       {presentation.isLoading && <LoadingIndicator />}
