@@ -33,7 +33,7 @@ export default function PDFPage() {
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-zinc-700">
-          <h2 className="text-xl font-semibold text-white">Files</h2>
+          <img src="/logo3.png" alt="Logo" className="h-6" />
           <button
             onClick={() => setSidebarOpen(false)}
             className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-300 hover:text-white"

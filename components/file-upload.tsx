@@ -51,17 +51,29 @@ export const FileUpload: React.FC<FileUploadProps> =
     }
   };
 
-  // const handleFileInput = useCallback(
-  //   (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     const file = e.target.files?.[0];
-  //     console.log("file detected")
-  //     if (file && file.type === 'application/pdf') {
-  //       console.log("pdf detected")
-  //       uploadToFirebase(file);
-  //     }
-  //   },
-  //   [onFileSelect]
-  // );
+  const handleDrop = useCallback(
+    (event: React.DragEvent<HTMLLabelElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+      
+      const file = event.dataTransfer.files?.[0];
+      if (file && file.type === 'application/pdf') {
+        onFileSelect(file);
+        uploadToFirebase(file);
+      }
+    },
+    [onFileSelect]
+  );
+
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
+
+  const handleDragEnter = useCallback((event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, []);
 
   return (
     <div className="flex flex-col items-center w-full gap-8 mt-18">
@@ -74,6 +86,9 @@ export const FileUpload: React.FC<FileUploadProps> =
         <label
           htmlFor="file-upload"
           className="flex flex-col items-center justify-center w-full h-48 border-2 border-white border-dotted rounded-lg cursor-pointer bg-transparent hover:bg-white/5"
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragEnter={handleDragEnter}
         >
           <div className="flex flex-col items-center justify-center pt-4 pb-4">
             <Upload className="w-10 h-10 mb-3 text-white" />
