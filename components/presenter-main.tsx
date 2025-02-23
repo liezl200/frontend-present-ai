@@ -10,7 +10,7 @@ import { FileUpload } from './file-upload';
 import { PresentationControls } from './presentation-controls';
 import LoadingIndicator from './loading-indicator';
 import { SlideAudioPlayer } from './slide-audio-player';
-import { filesAtom, presentationAtom, selectedFileIdAtom } from '../store/atoms';
+import { filesAtom, presentationAtom, selectedFileIdAtom, audioPlaybackAtom } from '../store/atoms';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/lib/firebase';
 
@@ -24,6 +24,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
   const [files, setFiles] = useAtom(filesAtom);
   const [selectedFileId, setSelectedFileId] = useAtom(selectedFileIdAtom);
   const [presentation, setPresentation] = useAtom(presentationAtom);
+  const [audioPlayback, setAudioPlayback] = useAtom(audioPlaybackAtom);
 
   // Initialize ElevenLabs conversation
   const conversation = useConversation({
@@ -67,6 +68,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
       handRaised: false,
       error: null
     }));
+    setAudioPlayback({ isPlaying: false, shouldPlay: false });
   };
 
   const handlePrevious = () => {
@@ -76,6 +78,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
       isPlaying: false,
       slideProgress: 0
     }));
+    setAudioPlayback(prev => ({ ...prev, shouldPlay: false }));
   };
 
   const handleNext = () => {
@@ -92,24 +95,28 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
       isPlaying: !prev.isPlaying,
       slideProgress: !prev.isPlaying ? 0 : prev.slideProgress
     }));
+    setAudioPlayback(prev => ({ ...prev, shouldPlay: !prev.shouldPlay }));
   };
 
-
   const toggleHandRaise = async () => {
-    console.log("i am toggled");
+    const newHandRaised = !presentation.handRaised;
+    
     setPresentation(prev => ({
       ...prev,
-      handRaised: !prev.handRaised,
-      isPlaying: prev.handRaised // If hand is being lowered, keep current play state, if being raised, pause
+      handRaised: newHandRaised,
     }));
+    
+    // When raising hand, pause audio playback
+    if (newHandRaised) {
+      setAudioPlayback({ isPlaying: false, shouldPlay: false });
+    }
+
     try {
-      if (!presentation.handRaised) {
-        // Start conversation when hand is raised
+      if (newHandRaised) {
         await conversation.startSession({
           agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID as string
         });
       } else {
-        // End conversation when hand is lowered
         console.log("the hand is lowered");
         await conversation.endSession();
       }
@@ -120,7 +127,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
 
   React.useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (presentation.isPlaying) {
+    if (presentation.isPlaying && !presentation.handRaised) {
       interval = setInterval(() => {
         setPresentation(prev => {
           if (prev.slideProgress >= 100) {
@@ -132,11 +139,12 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
       }, 100);
     }
     return () => clearInterval(interval);
-  }, [presentation.isPlaying]);
+  }, [presentation.isPlaying, presentation.handRaised]);
 
   React.useEffect(() => {
     if (presentation.currentPage >= presentation.numPages) {
       setPresentation(prev => ({ ...prev, isPlaying: false }));
+      setAudioPlayback({ isPlaying: false, shouldPlay: false });
     }
   }, [presentation.currentPage, presentation.numPages]);
 
@@ -149,13 +157,12 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
     
     if (presentation.isProcessing && presentation.processingUuid) {
       timeout = setTimeout(() => {
-        // After 20 seconds, stop processing
         setPresentation(prev => ({
           ...prev,
           isProcessing: false,
           processingUuid: null
         }));
-      }, 5000); // Wait for 20 seconds
+      }, 5000);
     }
 
     return () => {
@@ -164,44 +171,6 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
       }
     };
   }, [presentation.isProcessing, presentation.processingUuid]);
-
-  // Original polling version
-  // useEffect(() => {
-  //   let interval: NodeJS.Timeout;
-    
-  //   if (presentation.isProcessing && presentation.processingUuid) {
-  //     interval = setInterval(async () => {
-  //       try {
-  //         // Check for the combined audio file
-  //         const audioRef = ref(storage, `presentations/${presentation.processingUuid}/audio/combined_audio.wav`);
-  //         const exists = await getDownloadURL(audioRef).then(() => true).catch(() => false);
-          
-  //         if (exists) {
-  //           // Audio file exists, stop processing
-  //           setPresentation(prev => ({
-  //             ...prev,
-  //             isProcessing: false,
-  //             processingUuid: null
-  //           }));
-            
-  //           // Get the URL and update presentation state
-  //           const audioUrl = await getDownloadURL(audioRef);
-  //           handleUploadComplete({
-  //             1: { audioUrl, duration: 0, lastModified: new Date() }
-  //           });
-  //         }
-  //       } catch (error) {
-  //         console.error('Error checking for audio file:', error);
-  //       }
-  //     }, 5000); // Check every 5 seconds
-  //   }
-
-  //   return () => {
-  //     if (interval) {
-  //       clearInterval(interval);
-  //     }
-  //   };
-  // }, [presentation.isProcessing, presentation.processingUuid]);
 
   return (
     <div>
@@ -266,7 +235,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
                 />
                 <SlideAudioPlayer
                   audioUrl={presentation.slideAudios[presentation.currentPage]?.audioUrl}
-                  isPlaying={presentation.isPlaying}
+                  isPlaying={presentation.isPlaying && !presentation.handRaised}
                   onEnded={handleNext}
                 />
             </div>

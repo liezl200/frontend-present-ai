@@ -25,6 +25,7 @@ export interface PresentationState {
   error: string | null;
   slideAudios: Record<number, SlideAudio>;  // Map slide numbers to their audio data
 }
+
 export const filesAtom = atom<FileItem[]>([]);
 export const selectedFileIdAtom = atom<string | null>(null);
 export const presentationAtom = atom<PresentationState>({
@@ -49,4 +50,13 @@ export const presentationAtom = atom<PresentationState>({
       lastModified: new Date("2025-02-23T12:30:09-05:00")
     }
   },
+});
+
+// Audio playback control atom
+export const audioPlaybackAtom = atom<{
+  isPlaying: boolean;
+  shouldPlay: boolean;
+}>({
+  isPlaying: false,
+  shouldPlay: false,
 });
