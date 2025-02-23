@@ -6,6 +6,7 @@ import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 import { FileUpload } from '@/components/file-upload';
 import { PresentationControls } from '@/components/presentation-controls';
+import { useConversation } from '@11labs/react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -19,6 +20,14 @@ export default function PDFPresenter() {
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+
+  // Initialize ElevenLabs conversation
+  const conversation = useConversation({
+    onConnect: () => console.log('Connected to ElevenLabs'),
+    onDisconnect: () => console.log('Disconnected from ElevenLabs'),
+    onMessage: (message) => console.log('Message received:', message),
+    onError: (error) => console.error('ElevenLabs error:', error),
+  });
 
   const resetPresentation = useCallback(() => {
     setPdfFile(null);
@@ -59,17 +68,32 @@ export default function PDFPresenter() {
     }
   }, [isPlaying]);
 
-  const toggleHandRaise = useCallback(() => {
+  const toggleHandRaise = useCallback(async () => {
+    console.log("i am toggled")
     setHandRaised((prev) => !prev);
     setIsPlaying(false);
     setSlideProgress(0);
+    
     if (isRecording) {
       setIsRecording(false);
       if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
         mediaRecorderRef.current.stop();
       }
     }
-  }, [isRecording]);
+
+    try {
+      if (!handRaised) {
+        // Start conversation when hand is raised
+        await conversation.startSession({"agentId": process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID as string});
+      } else {
+        // End conversation when hand is lowered
+        console.log("the hand is lowered");
+        await conversation.endSession();
+      }
+    } catch (error) {
+      console.error('Error managing conversation:', error);
+    }
+  }, [isRecording, handRaised, conversation]);
 
   const toggleRecording = useCallback(async () => {
     if (!isRecording) {
