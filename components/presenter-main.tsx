@@ -149,38 +149,22 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
   }, [selectedFileId]);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let timeout: NodeJS.Timeout;
     
     if (presentation.isProcessing && presentation.processingUuid) {
-      interval = setInterval(async () => {
-        try {
-          // Check for the combined audio file
-          const audioRef = ref(storage, `presentations/${presentation.processingUuid}/audio/combined_audio.wav`);
-          const exists = await getDownloadURL(audioRef).then(() => true).catch(() => false);
-          
-          if (exists) {
-            // Audio file exists, stop processing
-            setPresentation(prev => ({
-              ...prev,
-              isProcessing: false,
-              processingUuid: null
-            }));
-            
-            // Get the URL and update presentation state
-            const audioUrl = await getDownloadURL(audioRef);
-            handleUploadComplete({
-              1: { audioUrl, duration: 0, lastModified: new Date() }
-            });
-          }
-        } catch (error) {
-          console.error('Error checking for audio file:', error);
-        }
-      }, 5000); // Check every 5 seconds
+      timeout = setTimeout(() => {
+        // After 20 seconds, stop processing
+        setPresentation(prev => ({
+          ...prev,
+          isProcessing: false,
+          processingUuid: null
+        }));
+      }, 20000); // Wait for 20 seconds
     }
 
     return () => {
-      if (interval) {
-        clearInterval(interval);
+      if (timeout) {
+        clearTimeout(timeout);
       }
     };
   }, [presentation.isProcessing, presentation.processingUuid]);
