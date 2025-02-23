@@ -113,69 +113,58 @@ export default function PDFPresenter() {
   }, [currentPage, numPages]);
 
   return (
-    <div className="h-[75vh]">
-      {isLoading && <LoadingIndicator />}
-      {!pdfFile ? (
-        <div className="max-w-2xl mx-auto pt-10 px-8">
-          <div className="flex justify-center items-center shadow-lg pt-[8vh] pb-[5vh]">
-            <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
+    <div className="">
+      <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">
+        <div className="h-[75vh]">
+        {isLoading && <LoadingIndicator />}
+        {!pdfFile ? (
+          <div className="max-w-2xl mx-auto pt-10 px-8">
+            <div className="flex justify-center items-center shadow-lg pt-[8vh] pb-[5vh]">
+              <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
+            </div>
+            <FileUpload onFileSelect={handleFileSelect} />
           </div>
-          <FileUpload onFileSelect={handleFileSelect} />
-          {/* <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
-            <button onClick={resetPresentation}
-            className = "cursor-pointer">
-              <img src="/logo3.png"
-                    alt="image"
-                    className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
-            </button>
-          </div> */}
-        </div>
-      ) : (
-        <div className="p-4 h-[75vh] max-w-full">
-          <div className="absolute top-0 right-0 pr-[4.5vw] pt-[1.8vh] z-50">
-            <button
-              onClick={resetPresentation}
-              className="px-4 py-2 text-sm font-medium text-black bg-primary hover:bg-primary/90 rounded-md cursor-pointer"
+          ) : (
+          <div className="p-4 h-[75vh] max-w-full">
+            <div className="absolute top-0 right-0 pr-[4.5vw] pt-[1.8vh] z-50">
+              <button
+                onClick={resetPresentation}
+                className="px-4 py-2 text-sm font-medium text-black bg-primary hover:bg-primary/90 rounded-md cursor-pointer"
+              >
+                Upload New Presentation
+              </button>
+            </div>
+            <Document
+              file={pdfFile}
+              onLoadSuccess={onDocumentLoadSuccess}
+              className="flex justify-center"
             >
-              Upload New Presentation
-            </button>
-          </div>
-          {/* <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
-            <button onClick={resetPresentation}
-            className = "cursor-pointer">
-              <img src="/logo3.png"
-                    alt="image"
-                    className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
-            </button>
-          </div> */}
-          <Document
-            file={pdfFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            className="flex justify-center"
-          >
-            <Page
-              key={currentPage}
-              pageNumber={currentPage}
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
-            />
-          </Document>
+              <Page
+                key={currentPage}
+                pageNumber={currentPage}
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+              />
+            </Document>
 
-          <div className="flex flex-col gap-2 relative">
-            <PresentationControls
-              currentSlide={currentPage}
-              totalSlides={numPages}
-              isPlaying={isPlaying}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              onPlayPause={togglePlayPause}
-              onRaiseHand={toggleHandRaise}
-              handRaised={handRaised}
-              slideProgress={slideProgress}
-            />
+            <div className="flex flex-col gap-2 relative">
+              <PresentationControls
+                currentSlide={currentPage}
+                totalSlides={numPages}
+                isPlaying={isPlaying}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                onPlayPause={togglePlayPause}
+                onRaiseHand={toggleHandRaise}
+                handRaised={handRaised}
+                slideProgress={slideProgress}
+              />
+            </div>
           </div>
+        )}
         </div>
-      )}
+      </div>
     </div>
+
   );
 }
