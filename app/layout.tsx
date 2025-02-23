@@ -44,9 +44,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div className="background-gradient">
               <header className="relative flex h-[60px] shrink-0 items-center px-6 border-b border-border">
                 <Link href="/" className="flex items-center">
-                <img src="/logo3.png"
-                  alt="image"
-                  className="max-w-1/4 max-h-20 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
                 </Link>
               </header>
               <div className="px-4">

@@ -147,15 +147,31 @@ export default function PDFPresenter() {
             <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
           </div>
           <FileUpload onFileSelect={handleFileSelect} />
+          <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
+            <button onClick={resetPresentation}
+            className = "cursor-pointer">
+              <img src="/logo3.png"
+                    alt="image"
+                    className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
+            </button>
+          </div>
         </div>
       ) : (
         <div className="p-4 h-[75vh] max-w-full">
-          <div className="absolute top-0 right-0 pr-[5vw] pr-[4.5vw] pt-[1.8vh] z-50">
+          <div className="absolute top-0 right-0 pr-[4.5vw] pt-[1.8vh] z-50">
             <button
               onClick={resetPresentation}
-              className="px-4 py-2 text-sm font-medium text-black bg-primary hover:bg-primary/90 rounded-md"
+              className="px-4 py-2 text-sm font-medium text-black bg-primary hover:bg-primary/90 rounded-md cursor-pointer"
             >
               Upload New Presentation
+            </button>
+          </div>
+          <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
+            <button onClick={resetPresentation}
+            className = "cursor-pointer">
+              <img src="/logo3.png"
+                    alt="image"
+                    className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
             </button>
           </div>
           <Document
