@@ -1,32 +1,36 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
+import React from 'react';
+
 import { getApiKey } from '@/app/actions';
-import { PresentableLogo } from '@/components/logo';
 import { KeyProvider } from '@/components/key-provider';
 import { ThemeProvider } from '@/components/theme-provider';
-import { Card } from '@/components/ui/card';
+import { Providers } from '@/components/jotaiprovider';
 import { Toaster } from '@/components/ui/sonner';
-import Link from 'next/link';
 
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: {
-    default: 'ElevenLabs Next.js Playground',
-    template: '%s | ElevenLabs Next.js',
-  },
-  metadataBase: new URL('https://elevenlabs-playground.vercel.app'),
-  description: 'A Next.JS playground to explore ElevenLabs capabilities.',
+  title: 'PDF Presenter',
+  description: 'A modern PDF presentation tool with slide controls and hand-raising feature',
+  keywords: ['PDF', 'presentation', 'slides', 'viewer'],
+  authors: [{ name: 'PDF Presenter Team' }],
   openGraph: {
-    title: 'ElevenLabs Next.js Playground',
-    description: 'A playground to explore ElevenLabs capabilities.',
-    images: [`/api/og?title=ElevenLabs Next.js Playground`],
+    title: 'PDF Presenter',
+    description: 'A modern PDF presentation tool with slide controls and hand-raising feature',
+    type: 'website',
+    siteName: 'PDF Presenter',
   },
   twitter: {
     card: 'summary_large_image',
+    title: 'PDF Presenter',
+    description: 'A modern PDF presentation tool with slide controls and hand-raising feature',
   },
+  viewport: 'width=device-width, initial-scale=1',
+  themeColor: '#ffffff',
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+
   const apiKeyResult = await getApiKey();
   const apiKey = apiKeyResult.ok ? apiKeyResult.value : null;
 
@@ -41,19 +45,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           disableTransitionOnChange
         >
           <KeyProvider apiKey={apiKey}>
-            <div className="background-gradient">
-              <header className="relative flex h-[60px] shrink-0 items-center px-6 border-b border-border">
-                <Link href="/" className="flex items-center">
-                </Link>
-              </header>
-              <div className="px-4">
-                <div className="mx-auto w-9/10 h-[75vh] space-y-3 px-2 lg:px-8">
-                  <Card className="border-gradient rounded-lg p-px shadow-lg">
-                    <div className="bg-card rounded-lg">{children}</div>
-                  </Card>
+            <Providers>
+              <div className="background-gradient min-h-screen w-full">
+                <header className="relative flex h-[60px] shrink-0 items-center justify-center">
+                </header>
+                <div>
+                  {children}
                 </div>
               </div>
-            </div>
+            </Providers>
           </KeyProvider>
           <Toaster />
         </ThemeProvider>

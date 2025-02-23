@@ -13,7 +13,7 @@ interface PresentationControlsProps {
   slideProgress: number;
 }
 
-export const PresentationControls: React.FC<PresentationControlsProps> = ({
+export function PresentationControls({
   currentSlide,
   totalSlides,
   isPlaying,
@@ -23,7 +23,7 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
   onRaiseHand,
   handRaised,
   slideProgress,
-}) => {
+}: PresentationControlsProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card shadow-lg">
       <div className="h-1 bg-secondary">

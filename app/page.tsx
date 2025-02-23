@@ -4,177 +4,99 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import { FileUpload } from '@/components/file-upload';
-import { PresentationControls } from '@/components/presentation-controls';
-import { useConversation } from '@11labs/react';
+import { useAtom } from 'jotai';
+import { filesAtom, selectedFileIdAtom } from '../store/atoms';
+import { Menu, X, FileText, Upload } from 'lucide-react';
+import PDFPresenter from '@/components/presenter-main';
 import LoadingIndicator from '@/components/loading-indicator';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
-export default function PDFPresenter() {
-  const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [numPages, setNumPages] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [handRaised, setHandRaised] = useState<boolean>(false);
-  const [slideProgress, setSlideProgress] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+export default function PDFPage() {
+  const [files] = useAtom(filesAtom);
+  const [selectedFileId, setSelectedFileId] = useAtom(selectedFileIdAtom);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const handleUploadClick = () => {
+    setSidebarOpen(false);
+    setSelectedFileId(null);
+  };
+  const selectedFile = files.find(f => f.id === selectedFileId);
 
-  // Initialize ElevenLabs conversation
-  const conversation = useConversation({
-    onConnect: () => console.log('Connected to ElevenLabs'),
-    onDisconnect: () => console.log('Disconnected from ElevenLabs'),
-    onMessage: (message: unknown) => console.log('Message received:', message),
-    onError: (error: Error) => console.error('ElevenLabs error:', error),
-  });
 
-  const resetPresentation = useCallback(() => {
-    setPdfFile(null);
-    setCurrentPage(1);
-    setNumPages(0);
-    setIsPlaying(false);
-    setSlideProgress(0);
-    setHandRaised(false);
-  }, []);
-
-  const handleFileSelect = useCallback((file: File) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setPdfFile(file);
-      setCurrentPage(1);
-      setIsPlaying(false);
-      setSlideProgress(0);
-      setIsLoading(false);
-    }, 2000);
-  }, []);
-
-  const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
-    setNumPages(numPages);
-  }, []);
-
-  const handlePrevious = useCallback(() => {
-    setCurrentPage((prev) => Math.max(1, prev - 1));
-    setIsPlaying(false);
-    setSlideProgress(0);
-  }, []);
-
-  const handleNext = useCallback(() => {
-    setCurrentPage((prev) => Math.min(numPages, prev + 1));
-    setSlideProgress(0);
-  }, [numPages]);
-
-  const togglePlayPause = useCallback(() => {
-    setIsPlaying((prev) => !prev);
-    if (!isPlaying) {
-      setSlideProgress(0);
-    }
-  }, [isPlaying]);
-
-  const toggleHandRaise = useCallback(async () => {
-    console.log("i am toggled")
-    setHandRaised((prev) => !prev);
-    setIsPlaying(false);
-    setSlideProgress(0);
-
-    try {
-      if (!handRaised) {
-        // Start conversation when hand is raised
-        await conversation.startSession({"agentId": process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID as string});
-      } else {
-        // End conversation when hand is lowered
-        console.log("the hand is lowered");
-        await conversation.endSession();
-      }
-    } catch (error) {
-      console.error('Error managing conversation:', error);
-    }
-  }, [handRaised, conversation]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isPlaying) {
-      interval = setInterval(() => {
-        setSlideProgress((prev) => {
-          if (prev >= 100) {
-            handleNext();
-            return 0;
-          }
-          return prev + 1;
-        });
-      }, 100);
-    }
-    return () => clearInterval(interval);
-  }, [isPlaying, handleNext]);
-
-  useEffect(() => {
-    if (currentPage >= numPages) {
-      setIsPlaying(false);
-    }
-  }, [currentPage, numPages]);
 
   return (
-    <div className="h-[75vh] bg-background">
-      {!pdfFile ? (
-        <div className="max-w-2xl mx-auto pt-10 px-8">
-          <div className="flex justify-center items-center shadow-lg pt-[8vh] pb-[5vh]">
-            <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
-          </div>
-          {isLoading ? <LoadingIndicator /> : <FileUpload onFileSelect={handleFileSelect} />}
-          <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
-            <button onClick={resetPresentation}
-            className = "cursor-pointer">
-              <img src="/logo3.png"
-                    alt="image"
-                    className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="p-4 h-[75vh] max-w-full">
-          <div className="absolute top-0 right-0 pr-[4.5vw] pt-[1.8vh] z-50">
-            <button
-              onClick={resetPresentation}
-              className="px-4 py-2 text-sm font-medium text-black bg-primary hover:bg-primary/90 rounded-md cursor-pointer"
-            >
-              Upload New Presentation
-            </button>
-          </div>
-          <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
-            <button onClick={resetPresentation}
-            className = "cursor-pointer">
-              <img src="/logo3.png"
-                    alt="image"
-                    className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
-            </button>
-          </div>
-          <Document
-            file={pdfFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            className="flex justify-center"
+    <div className="flex">
+      {/* Sidebar */}
+      <div
+        className={`fixed inset-y-0 left-0 z-30 w-64 bg-zinc-900 shadow-lg transform transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-zinc-700">
+          <img src="/logo3.png" alt="Logo" className="h-6" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 rounded-lg hover:bg-zinc-700 text-zinc-300 hover:text-white"
           >
-            <Page
-              key={currentPage}
-              pageNumber={currentPage}
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
-            />
-          </Document>
-
-          <div className="flex flex-col gap-2 relative">
-            <PresentationControls
-              currentSlide={currentPage}
-              totalSlides={numPages}
-              isPlaying={isPlaying}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              onPlayPause={togglePlayPause}
-              onRaiseHand={toggleHandRaise}
-              handRaised={handRaised}
-              slideProgress={slideProgress}
-            />
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="p-4">
+          <button
+            onClick={handleUploadClick}
+            className="w-full mb-4 px-4 py-2 text-sm font-medium text-white bg-zinc-700 hover:bg-zinc-600 rounded-md flex items-center justify-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Upload New Presentation
+          </button>
+          <div className="space-y-2">
+            {files.map((file) => (
+              <div
+                key={file.id}
+                onClick={() => {
+                  setSelectedFileId(file.id);
+                  setSidebarOpen(false);
+                }}
+                className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer ${
+                  selectedFileId === file.id
+                    ? 'bg-zinc-700 text-white'
+                    : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
+                }`}
+              >
+                <FileText className="w-4 h-4" />
+                <span className="truncate">{file.name}</span>
+              </div>
+            ))}
+            {files.length === 0 && (
+              <div className="text-zinc-400 text-sm text-center py-4">
+                No files uploaded yet
+              </div>
+            )}
           </div>
         </div>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1">
+        <div className="p-4">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed top-4 left-4 z-20 p-2 rounded-lg bg-zinc-900 text-white shadow-md hover:bg-zinc-700"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <PDFPresenter selectedFile={selectedFile?.file} />
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-20"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
     </div>
+
   );
 }
