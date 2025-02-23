@@ -121,14 +121,14 @@ export default function PDFPresenter() {
             <img src="/logo3.png" alt="image" className="max-w-4/5 max-h-full rounded-lg" />
           </div>
           <FileUpload onFileSelect={handleFileSelect} />
-          <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
+          {/* <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
             <button onClick={resetPresentation}
             className = "cursor-pointer">
               <img src="/logo3.png"
                     alt="image"
                     className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
             </button>
-          </div>
+          </div> */}
         </div>
       ) : (
         <div className="p-4 h-[75vh] max-w-full">
@@ -140,14 +140,14 @@ export default function PDFPresenter() {
               Upload New Presentation
             </button>
           </div>
-          <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
+          {/* <div className="absolute top-0 left-0 pl-[4.5vw] pt-[2.5vh] z-20">
             <button onClick={resetPresentation}
             className = "cursor-pointer">
               <img src="/logo3.png"
                     alt="image"
                     className="max-h-7 rounded-full shadow-md hover:scale-105 transition-transform duration-200" />
             </button>
-          </div>
+          </div> */}
           <Document
             file={pdfFile}
             onLoadSuccess={onDocumentLoadSuccess}
