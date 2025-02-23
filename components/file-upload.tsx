@@ -18,9 +18,9 @@ export const FileUpload: React.FC<FileUploadProps> =
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
-      const uuid = uuidv4();
+      const uuid = "ea43146d-40f5-45c8-86d0-91f0d2094fe4";
       onFileSelect(file, uuid);
-      uploadToFirebase(file, uuid);
+      // uploadToFirebase(file, uuid);
     }
   };
 
@@ -52,9 +52,9 @@ export const FileUpload: React.FC<FileUploadProps> =
       
       const file = event.dataTransfer.files?.[0];
       if (file && file.type === 'application/pdf') {
-        const uuid = uuidv4();
+        const uuid = "ea43146d-40f5-45c8-86d0-91f0d2094fe4";
         onFileSelect(file, uuid);
-        uploadToFirebase(file, uuid);
+        // uploadToFirebase(file, uuid);
       }
     },
     [onFileSelect]

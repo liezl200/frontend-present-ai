@@ -97,15 +97,11 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
 
   const toggleHandRaise = async () => {
     console.log("i am toggled");
-    setPresentation(prev => {
-      const newHandRaised = !prev.handRaised;
-      return {
-        ...prev,
-        handRaised: newHandRaised,
-        isPlaying: false,
-        slideProgress: 0
-      };
-    });
+    setPresentation(prev => ({
+      ...prev,
+      handRaised: !prev.handRaised,
+      isPlaying: prev.handRaised // If hand is being lowered, keep current play state, if being raised, pause
+    }));
     try {
       if (!presentation.handRaised) {
         // Start conversation when hand is raised
@@ -159,7 +155,7 @@ export default function PDFPresenter({ selectedFile }: PDFPresenterProps) {
           isProcessing: false,
           processingUuid: null
         }));
-      }, 20000); // Wait for 20 seconds
+      }, 5000); // Wait for 20 seconds
     }
 
     return () => {

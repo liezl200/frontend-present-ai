@@ -34,6 +34,7 @@ export function SlideAudioPlayer({ audioUrl, isPlaying, onEnded }: SlideAudioPla
           ref={audioRef}
           onEnded={onEnded}
           controls
+          autoPlay
           className="w-full"
         >
           <source src={audioUrl} type="audio/wav" />

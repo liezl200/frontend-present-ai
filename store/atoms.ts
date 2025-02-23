@@ -37,5 +37,16 @@ export const presentationAtom = atom<PresentationState>({
   isProcessing: false,
   processingUuid: null,
   error: null,
-  slideAudios: {},
+  slideAudios: {
+    1: {
+      audioUrl: "/audio/segment_0.wav",
+      duration: 0,
+      lastModified: new Date("2025-02-23T12:30:09-05:00")
+    },
+    2: {
+      audioUrl: "/audio/segment_1.wav",
+      duration: 0,
+      lastModified: new Date("2025-02-23T12:30:09-05:00")
+    }
+  },
 });
